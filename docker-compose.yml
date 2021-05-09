@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+
+  tomcat-db-api:
+    image: proiect
+    container_name: tomcat-db-api-1
+    ports:
+       - "8080:8080"
+   

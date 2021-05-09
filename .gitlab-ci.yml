@@ -1,0 +1,46 @@
+stages:
+    - build
+    - test
+    - checkstyle
+    - deploy
+
+build:
+    stage: build
+    image: maven:3.6.3-openjdk-11
+    script:
+        - mvn clean install
+
+test:
+    stage: test
+    image: maven:3.6.3-openjdk-11
+    script:
+        - echo "Test app"
+        - mvn test && mvn jacoco:report
+        - cat target/site/jacoco/index.html | grep -o '.*'
+    coverage: "/Total.*?([0-9]{1,3})%/"
+
+checkstyle:
+    stage: checkstyle
+    image: maven:3.6.3-openjdk-11
+    script:
+    - echo "Checkstyle app"
+    - mvn checkstyle:check
+
+variables:
+    DB_IP: ec2-54-220-229-215.eu-west-1.compute.amazonaws.com
+    DB_PORT: 5432
+    DB_USER: uwostlbvyhcqvt
+    DB_PASSWORD: 0d9453156b4c8b34ff77158e6539f5e35fb598d8e2fcd7bb9aeeae483fafb282
+    DB_DBNAME: deh80ad9tog0qd
+
+deploy:
+  type: deploy
+  stage: deploy
+  image: ruby:latest
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=cristianpoptema1backend --api-key=$HEROKU_API_KEY
+  only:
+    - master
